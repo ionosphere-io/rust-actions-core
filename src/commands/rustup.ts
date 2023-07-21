@@ -34,7 +34,8 @@ export class RustUp {
             return await RustUp.get();
         } catch (error) {
             core.debug(
-                `Unable to find "rustup" executable, installing it now. Reason: ${error}`,
+                'Unable to find "rustup" executable, installing it now. Reason: ' +
+                    String(error),
             );
             return await RustUp.install();
         }
@@ -212,14 +213,14 @@ expected at least ${PROFILES_MIN_VERSION}`);
         return await this.call(['self', 'update']);
     }
 
-    public async call(args: string[], options?: {}): Promise<number> {
+    public async call(args: string[], options?: object): Promise<number> {
         return await exec.exec(this.path, args, options);
     }
 
     /**
      * Call the `rustup` and return an stdout
      */
-    async callStdout(args: string[], options?: {}): Promise<string> {
+    async callStdout(args: string[], options?: object): Promise<string> {
         let stdout = '';
         const resOptions = Object.assign({}, options, {
             listeners: {

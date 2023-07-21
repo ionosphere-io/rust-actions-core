@@ -1,7 +1,5 @@
 import * as github from '@actions/github';
-
-// `@actions/github` does not re-export `GitHub` type, thanks for nothing.
-type GitHub = any;
+import { Octokit } from 'octokit';
 
 interface Output {
     title: string;
@@ -13,11 +11,11 @@ interface Output {
  * Thin wrapper around the GitHub Checks API
  */
 export class CheckReporter {
-    private readonly client: GitHub;
+    private readonly client: Octokit;
     private readonly checkName: string;
     private checkId: undefined | number;
 
-    constructor(client: GitHub, checkName: string) {
+    constructor(client: Octokit, checkName: string) {
         this.client = client;
         this.checkName = checkName;
         this.checkId = undefined;
@@ -31,7 +29,7 @@ export class CheckReporter {
     ): Promise<number> {
         const { owner, repo } = github.context.repo;
 
-        const response = await this.client.checks.create({
+        const response = await this.client.rest.checks.create({
             owner: owner,
             repo: repo,
             name: this.checkName,
@@ -41,7 +39,7 @@ export class CheckReporter {
         // TODO: Check for errors
 
         this.checkId = response.data.id;
-        return this.checkId!;
+        return this.checkId;
     }
 
     // TODO:
@@ -64,7 +62,7 @@ export class CheckReporter {
         const { owner, repo } = github.context.repo;
 
         // TODO: Check for errors
-        await this.client.checks.update({
+        await this.client.rest.checks.update({
             owner: owner,
             repo: repo,
             name: this.checkName,
@@ -82,7 +80,7 @@ export class CheckReporter {
         const { owner, repo } = github.context.repo;
 
         // TODO: Check for errors
-        await this.client.checks.update({
+        await this.client.rest.checks.update({
             owner: owner,
             repo: repo,
             name: this.checkName,
@@ -93,8 +91,7 @@ export class CheckReporter {
             output: {
                 title: this.checkName,
                 summary: 'Unhandled error',
-                text:
-                    'Check was cancelled due to unhandled error. Check the Action logs for details.',
+                text: 'Check was cancelled due to unhandled error. Check the Action logs for details.',
             },
         });
 

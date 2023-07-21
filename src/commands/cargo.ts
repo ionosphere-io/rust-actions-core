@@ -4,19 +4,28 @@ import * as exec from '@actions/exec';
 import * as cache from '@actions/cache';
 import * as http from '@actions/http-client';
 import * as path from 'path';
+import { Crate } from '../crates';
 
 export async function resolveVersion(crate: string): Promise<string> {
+    // Note: we can't use the NPM crates.io package because it lacks the
+    // field we need (newest_version).
+
     const url = `https://crates.io/api/v1/crates/${crate}`;
     const client = new http.HttpClient(
         '@actions-rs (https://github.com/actions-rs/)',
     );
 
-    const resp: any = await client.getJson(url);
+    const resp = await client.getJson<Crate>(url);
     if (resp.result == null) {
         throw new Error('Unable to fetch latest crate version');
     }
+    const result: Crate = resp.result;
 
-    return resp.result['crate']['newest_version'];
+    if (result.crate.newest_version == null) {
+        throw new Error('Crate does not have a newest version');
+    }
+
+    return result.crate.newest_version;
 }
 
 export class Cargo {
@@ -97,12 +106,18 @@ see https://help.github.com/en/articles/software-in-virtual-environments-for-git
                     core.info(`Caching \`${program}\` with key ${programKey}`);
                     await cache.saveCache(paths, programKey);
                 } catch (error) {
-                    if (error.name === cache.ValidationError.name) {
-                        throw error;
-                    } else if (error.name === cache.ReserveCacheError.name) {
-                        core.info(error.message);
+                    if (error instanceof Error) {
+                        if (error.name === cache.ValidationError.name) {
+                            throw error;
+                        } else if (
+                            error.name === cache.ReserveCacheError.name
+                        ) {
+                            core.info(error.message);
+                        } else {
+                            core.info('[warning]: ' + error.message);
+                        }
                     } else {
-                        core.info('[warning]' + error.message);
+                        core.info('[warning]: ' + String(error));
                     }
                 }
                 return res;
@@ -146,7 +161,7 @@ see https://help.github.com/en/articles/software-in-virtual-environments-for-git
         return await this.installCached(program, version);
     }
 
-    public async call(args: string[], options?: {}): Promise<number> {
+    public async call(args: string[], options?: object): Promise<number> {
         return await exec.exec(this.path, args, options);
     }
 }

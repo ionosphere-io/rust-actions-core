@@ -16,7 +16,7 @@ export class Cross {
         try {
             return await Cross.get();
         } catch (error) {
-            core.debug(`${error}`);
+            core.debug(String(error));
             return await Cross.install();
         }
     }
@@ -54,7 +54,7 @@ export class Cross {
         }
     }
 
-    public async call(args: string[], options?: {}): Promise<number> {
+    public async call(args: string[], options?: object): Promise<number> {
         return await exec.exec(this.path, args, options);
     }
 }
