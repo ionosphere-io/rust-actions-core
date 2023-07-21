@@ -4,7 +4,7 @@
     "version": "0.2.0",
     "author": "actions-rs",
     "license": "MIT",
-    "description": "Core functionality for the @actions-rs repos",
+    "description": "Core functionality for the Rust Actions. Forked from @actions-rs/core.",
     "main": "dist/core.js",
     "files": [
         "dist/**/*.js",
@@ -21,10 +21,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/actions-rs/core.git"
+        "url": "git+https://github.com/ionosphere-io/rust-actions-core.git"
     },
     "bugs": {
-        "url": "https://github.com/actions-rs/core/issues"
+        "url": "https://github.com/ionosphere-io/rust-actions-core/issues"
     },
     "dependencies": {
         "@actions/cache": "^3.2.1",
