@@ -1,6 +1,6 @@
 {
     "private": false,
-    "name": "@actions-rs/core",
+    "name": "@ionosphere-io/rust-actions-core",
     "version": "0.2.0",
     "author": "actions-rs",
     "license": "MIT",
